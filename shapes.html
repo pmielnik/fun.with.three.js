@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script src="js/perlin.js"></script>
+		<script>
+            // Our Javascript will go here.
+            var scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 3, 10000 );
+            camera.position.set( 0, 0, 100 );
+            camera.lookAt( 0, 0, 0 );
+
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.setClearColor(0x7b7b7b);
+            document.body.appendChild( renderer.domElement );
+
+            var geometry = new THREE.BoxGeometry( 50, 50, 50 );
+            var material = new THREE.MeshLambertMaterial( {color: 0xFF0000, wireframe: true } );
+            var mesh = new THREE.Mesh(geometry, material);
+            mesh.position.z = -500;
+            mesh.position.x = -100;
+            mesh.position.y = -50;
+            scene.add(mesh);
+
+            var geometry1 = new THREE.TorusGeometry( 25, 7, 16, 100 );
+            var material1 = new THREE.MeshLambertMaterial( { color: 0xffff00 } );
+            var torus = new THREE.Mesh( geometry1, material1 );
+            torus.position.z = -500;
+            torus.position.x = 100;
+            torus.position.y = 20;
+            scene.add( torus );
+
+
+            var sphereGeometry = new THREE.SphereGeometry(50, 128, 128);
+            var sphereMaterial = new THREE.MeshPhongMaterial( { color: 0xFFFFFF } );
+            var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            sphere.position.z = -500;
+            sphere.position.x = 0;
+            sphere.position.y = 10;
+            scene.add(sphere);
+            
+            // var sphereGeometry = new THREE.sphereGeometry( 50, 20, 20 );
+            // var sphereMaterial = new THREE.MeshPhongMaterial();
+            // var sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
+            // sphere.position.z = -500;
+            // sphere.position.x = 100;
+            // sphere.position.y = 10;
+            // scene.add( sphere );
+
+            // var light = new THREE.AmbientLight(0xffffff, 0.5);
+            // scene.add(light);
+
+            // var light = new THREE.SpotLight(0xa860bf, 2.0, 1000);
+            // light.target = sphere;
+            // scene.add(light);
+
+            var light = new THREE.SpotLight(0xa860bf, 2.0, 1000);
+            light.target = sphere;
+            light.position.set(0,0,0);
+            scene.add(light);
+
+            var light = new THREE.SpotLight(0x3F5EFB, 2.0, 1000);
+            light.target = sphere;
+            light.position.set(500,0,0);
+            scene.add(light);
+
+            var light = new THREE.SpotLight(0xFC466B, 2.0, 1000);
+            light.target = sphere;
+            light.position.set(-500,0,0);
+            scene.add(light);
+
+
+            // var material2 = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+            // var geometry2 = new THREE.Geometry();
+            // geometry2.vertices.push(new THREE.Vector3( -20, 0, 0) );
+            // geometry2.vertices.push(new THREE.Vector3( 0, 40, 0) );
+            // geometry2.vertices.push(new THREE.Vector3( 20, 0, 0) );
+
+            // var line = new THREE.Line( geometry2, material2 );
+            // scene.add( line );
+            // scene.add( cube );
+
+            camera.position.z = 10;
+            // renderer.render( scene, camera );
+
+            var morphSphere = function() {
+                // change the end value to increase/decrease morph speed
+                var time = performance.now() * 0.0005;
+                
+                // change 'k' value for more spikes
+                var k = 6;
+                for (var i = 0; i < sphere.geometry.vertices.length; i++) {
+                    var v = sphere.geometry.vertices[i];
+                    v.normalize().multiplyScalar( 50 + 15 * noise.perlin3( v.x * k + time, v.y * k, v.z * k ));
+                }
+                sphere.geometry.computeVertexNormals();
+                sphere.geometry.normalsNeedUpdate = true;
+                sphere.geometry.verticesNeedUpdate = true;
+            }
+
+            var morphTorus = function() {
+                // change the end value to increase/decrease morph speed
+                var time = performance.now() * 0.0005;
+                
+                // change 'k' value for more spikes
+                var k = 1;
+                for (var i = 0; i < torus.geometry.vertices.length; i++) {
+                    var v = torus.geometry.vertices[i];
+                    v.normalize().multiplyScalar( 25 + 3 * noise.perlin3( v.x * k, v.y * k, v.z * k + time ));
+                }
+                torus.geometry.computeVertexNormals();
+                torus.geometry.normalsNeedUpdate = true;
+                torus.geometry.verticesNeedUpdate = true;
+            }
+
+            function animate() {
+
+                requestAnimationFrame( animate );
+
+                mesh.rotation.x -= 0.01;
+                mesh.rotation.y -= 0.01;
+
+                torus.rotation.x += 0.01;
+                torus.rotation.z += 0.01;
+                
+                var time = performance.now() * 0.0005;
+
+                //renderer.render( scene, camera );
+
+                morphSphere();
+                // morphTorus();
+
+                // sphere.rotation.x += 0.01;
+                sphere.rotation.z += 0.005;
+
+	            renderer.render( scene, camera );
+            }
+            animate();
+		</script>
+	</body>
+</html>
